@@ -28,6 +28,7 @@ extern crate tokio_proto;
 extern crate tokio_service;
 extern crate unicase;
 #[macro_use] extern crate url;
+extern crate net2;
 
 #[cfg(all(test, feature = "nightly"))]
 extern crate test;

@@ -4,7 +4,7 @@
 //! them off to a `Service`.
 use std::fmt;
 use std::io;
-use std::net::{SocketAddr, TcpListener as StdTcpListener};
+use std::net::{SocketAddr};
 
 use futures::{Future, Map};
 use futures::stream::{Stream};
@@ -23,6 +23,8 @@ pub use self::request::Request;
 pub use self::response::Response;
 
 use http;
+use net2::TcpBuilder;
+use net2::unix::UnixTcpBuilderExt;
 
 mod request;
 mod response;
@@ -85,7 +87,7 @@ impl<A: Accept> Server<A> {
 impl Server<HttpIncoming> {
     /// Creates a new HTTP server config listening on the provided address.
     pub fn http(addr: &SocketAddr, handle: &Handle) -> ::Result<Server<HttpIncoming>> {
-        let listener = try!(StdTcpListener::bind(addr));
+        let listener = try!(TcpBuilder::new_v4().unwrap().reuse_port(true).unwrap().bind(addr).unwrap().listen(10000));
         let addr = try!(listener.local_addr());
         let listener = try!(TcpListener::from_listener(listener, &addr, handle));
         Ok(Server::new(listener.incoming(), addr))
